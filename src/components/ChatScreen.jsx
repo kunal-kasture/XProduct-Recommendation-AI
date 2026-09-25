@@ -6,18 +6,25 @@ import {
   Grid,
   TextField,
   Button,
+  Rating,
+  IconButton,
   Stack,
 } from "@mui/material";
+import ThumbUpAltOutlinedIcon from "@mui/icons-material/ThumbUpAltOutlined";
+import ThumbDownAltOutlinedIcon from "@mui/icons-material/ThumbDownAltOutlined";
 import { format } from "date-fns";
 
 import sampleData from "../aiData/sampleData.json";
 import sampleProductData from "../aiData/sampleProductData.json";
+import FeedbackModal from "./FeedbackModal";
 import personImg from "../assets/person.png";
 import botImg from "../assets/bot.png";
 
 export default function ChatScreen({ messages, setMessages, onSaveChat }) {
   const [inputVal, setInputVal] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeFeedbackIndex, setActiveFeedbackIndex] = useState(null);
 
   const resolveAnswer = (userQuery) => {
     const q = userQuery.trim().toLowerCase();
@@ -64,6 +71,12 @@ export default function ChatScreen({ messages, setMessages, onSaveChat }) {
 
     setMessages((prev) => [...prev, userMessage, ...botMessages]);
     setInputVal("");
+  };
+
+  const handleRatingChange = (idx, newRating) => {
+    setMessages((prev) =>
+      prev.map((msg, i) => (i === idx ? { ...msg, rating: newRating } : msg)),
+    );
   };
 
   return (
@@ -134,6 +147,11 @@ export default function ChatScreen({ messages, setMessages, onSaveChat }) {
                   borderRadius: 2,
                   boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
                   backgroundColor: "background.paper",
+                  position: "relative",
+                  "&:hover .hover-reactions": {
+                    visibility: "visible",
+                    opacity: 1,
+                  },
                 }}
               >
                 <Box
@@ -160,9 +178,65 @@ export default function ChatScreen({ messages, setMessages, onSaveChat }) {
                   >
                     {msg.text}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {msg.time}
-                  </Typography>
+
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Typography variant="caption" color="text.secondary">
+                      {msg.time}
+                    </Typography>
+
+                    {msg.sender === "ai" && (
+                      <Stack
+                        direction="row"
+                        spacing={0.5}
+                        className="hover-reactions"
+                        sx={{
+                          visibility: "hidden",
+                          opacity: 0,
+                          transition: "opacity 0.2s ease-in-out",
+                        }}
+                      >
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            setMessages((prev) =>
+                              prev.map((m, i) =>
+                                i === idx ? { ...m, liked: true } : m,
+                              ),
+                            )
+                          }
+                        >
+                          <ThumbUpAltOutlinedIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setActiveFeedbackIndex(idx);
+                            setModalOpen(true);
+                          }}
+                        >
+                          <ThumbDownAltOutlinedIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    )}
+                  </Stack>
+
+                  {msg.sender === "ai" && msg.liked && (
+                    <Box sx={{ mt: 1 }}>
+                      <Typography
+                        variant="caption"
+                        display="block"
+                        color="text.secondary"
+                      >
+                        Rate this reponse:
+                      </Typography>
+                      <Rating
+                        name={`msg-rating-${idx}`}
+                        value={msg.rating || 0}
+                        onChange={(e, val) => handleRatingChange(idx, val)}
+                        size="small"
+                      />
+                    </Box>
+                  )}
                 </Box>
               </Card>
             ))}
@@ -231,6 +305,21 @@ export default function ChatScreen({ messages, setMessages, onSaveChat }) {
           Save
         </Button>
       </Box>
+
+      <FeedbackModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={(comment) => {
+          if (activeFeedbackIndex !== null) {
+            setMessages((prev) =>
+              prev.map((msg, i) =>
+                i === activeFeedbackIndex ? { ...msg, feedback: comment } : msg,
+              ),
+            );
+          }
+          setModalOpen(false);
+        }}
+      />
     </Box>
   );
 }
