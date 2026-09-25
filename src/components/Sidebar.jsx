@@ -1,17 +1,13 @@
 import React from "react";
-import { Box, Button, Typography, Drawer, Stack } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Button, Typography, Stack } from "@mui/material";
+import { Link } from "react-router-dom";
 import newChatImg from "../assets/newchat.png";
 import editImg from "../assets/edit.png";
 
-export default function Sidebar({
-  mobileOpen,
-  onCloseMobile,
-  onNewSuggestion,
-  onNavigateHistory,
-}) {
-  const content = (
+export default function Sidebar({ onNewSuggestion }) {
+  return (
     <Box
+      component="aside"
       sx={{
         width: 260,
         height: "100%",
@@ -20,18 +16,13 @@ export default function Sidebar({
         display: "flex",
         flexDirection: "column",
         gap: 2,
+        flexShrink: 0,
         borderRight: "1px solid rgba(0, 0, 0, 0.08)",
       }}
     >
-      <Box
-        sx={{ display: { xs: "flex", md: "none" }, justifyContent: "flex-end" }}
-      >
-        <Button onClick={onCloseMobile} startIcon={<CloseIcon />} size="small">
-          Close
-        </Button>
-      </Box>
-
       <Button
+        component={Link}
+        to="/"
         onClick={onNewSuggestion}
         sx={{
           backgroundColor: "#D7C7EB",
@@ -42,6 +33,7 @@ export default function Sidebar({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          textDecoration: "none",
           "&:hover": { backgroundColor: "#C8B5E0" },
         }}
       >
@@ -65,7 +57,8 @@ export default function Sidebar({
       </Button>
 
       <Button
-        onClick={onNavigateHistory}
+        component={Link}
+        to="/history"
         variant="contained"
         sx={{
           backgroundColor: "#D7C7EB",
@@ -74,29 +67,13 @@ export default function Sidebar({
           py: 1.2,
           textTransform: "none",
           fontWeight: 600,
-          "&:hover": { backgroundColor: "#C8B5E0" },
+          textDecoration: "none",
           boxShadow: "none",
+          "&:hover": { backgroundColor: "#C8B5E0" },
         }}
       >
         Previous Suggestions
       </Button>
     </Box>
-  );
-
-  return (
-    <>
-      <Box sx={{ display: { xs: "none", md: "block" }, flexShrink: 0 }}>
-        {content}
-      </Box>
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={onCloseMobile}
-        ModalProps={{ keepMounted: true }}
-        sx={{ display: { xs: "block", md: "none" } }}
-      >
-        {content}
-      </Drawer>
-    </>
   );
 }

@@ -14,7 +14,6 @@ export default function Header({ mode, onToggleTheme, onOpenMobileDrawer }) {
         justifyContent: "space-between",
         px: { xs: 2, md: 4 },
         py: 2,
-        borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
         bgcolor: "background.default",
       }}
     >
@@ -22,7 +21,7 @@ export default function Header({ mode, onToggleTheme, onOpenMobileDrawer }) {
         <IconButton
           onClick={onOpenMobileDrawer}
           sx={{ display: { xs: "flex", md: "none" } }}
-          aria-label="Open menu"
+          aria-label="Open navigation menu"
         >
           <MenuIcon />
         </IconButton>
@@ -49,7 +48,13 @@ export default function Header({ mode, onToggleTheme, onOpenMobileDrawer }) {
           userSelect: "none",
         }}
       >
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 500,
+            display: { xs: "none", md: "block" },
+          }}
+        >
           {mode === "light" ? "Light" : "Dark"}
         </Typography>
         <IconButton size="small" color="inherit">

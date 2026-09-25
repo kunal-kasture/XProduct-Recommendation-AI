@@ -37,6 +37,15 @@ export default function ChatScreen({ messages, setMessages, onSaveChat }) {
       return [catMatch.response];
     }
 
+    const directProdMatch = sampleProductData.find(
+      (item) => item.question.toLowerCase() === q,
+    );
+    if (directProdMatch) {
+      return Array.isArray(directProdMatch.response)
+        ? directProdMatch.response
+        : [directProdMatch.response];
+    }
+
     if (activeCategory) {
       const combined = `${activeCategory} ${userQuery.trim()}`.toLowerCase();
       const prodMatch = sampleProductData.find(
@@ -287,12 +296,9 @@ export default function ChatScreen({ messages, setMessages, onSaveChat }) {
           Ask
         </Button>
         <Button
-          type="submit"
+          type="button"
           variant="contained"
-          onClick={(e) => {
-            e.preventDefault();
-            onSaveChat();
-          }}
+          onClick={() => onSaveChat()}
           sx={{
             backgroundColor: "#D7C7EB",
             color: "#000000",

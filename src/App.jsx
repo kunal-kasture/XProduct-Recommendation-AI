@@ -11,11 +11,14 @@ import HistoryScreen from "./components/HistoryScreen";
 export default function App() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("light");
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [activeSession, setActiveSession] = useState([]);
   const [conversations, setConversations] = useState(() => {
-    const saved = localStorage.getItem("chat_history");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("chat_history");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -37,7 +40,9 @@ export default function App() {
       rating: maxRating,
     };
 
-    setConversations((prev) => [newRecord, ...prev]);
+    const updated = [newRecord, ...conversations];
+    setConversations(updated);
+    localStorage.setItem("chat_history", JSON.stringify(updated));
   };
 
   const handleNewSuggestion = () => {
@@ -46,7 +51,6 @@ export default function App() {
     }
     setActiveSession([]);
     navigate("/");
-    setMobileDrawerOpen(false);
   };
 
   return (
@@ -60,15 +64,7 @@ export default function App() {
           overflow: "hidden",
         }}
       >
-        <Sidebar
-          mobileOpen={mobileDrawerOpen}
-          onCloseMobile={() => setMobileDrawerOpen(false)}
-          onNewSuggestion={handleNewSuggestion}
-          onNavigateHistory={() => {
-            navigate("/history");
-            setMobileDrawerOpen(false);
-          }}
-        />
+        <Sidebar onNewSuggestion={handleNewSuggestion} />
 
         <Box
           sx={{
@@ -79,11 +75,7 @@ export default function App() {
             overflow: "hidden",
           }}
         >
-          <Header
-            mode={mode}
-            onToggleTheme={toggleTheme}
-            onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
-          />
+          <Header mode={mode} onToggleTheme={toggleTheme} />
 
           <Box sx={{ flexGrow: 1, p: { xs: 2, md: 3 }, overflowY: "auto" }}>
             <Routes>
